@@ -39,7 +39,7 @@ export const CHECKLIST_ITEMS: ChecklistItemDef[] = [
   { id: 11, category: 'KINH DOANH', title: 'Phản hồi không tốt của KH', placeholder: 'Ghi ý kiến không hài lòng của KH', example: 'Toilet có mùi. Tính phí mang đồ vào đắt' },
   { id: 12, category: 'KINH DOANH', title: 'Số bill chênh lệch tạm tính và thanh toán', placeholder: 'Ghi số lượng và nguyên nhân', example: '2 bill. Do Cs ko check kỹ đồ' },
   { id: 13, category: 'KINH DOANH', title: 'CTKM áp dụng trong ngày', placeholder: 'Ghi tên CTKM', example: 'Đặt bàn off 5%. Ngày hội Bia Ơi' },
-  { id: 14, category: 'KINH DOANH', title: 'Phát sinh bất thường trong ngày', placeholder: 'Ghi các bất thường trong ngày', example: 'Công an đến thu biển. KH say ngã ở toilet... Đông khách đột biến nên thiếu nhân sự bếp nên đồ ra lâu' },
-  { id: 15, category: 'KINH DOANH', title: 'Đề xuất', placeholder: 'Nêu ý kiến cải tiến, đề xuất, hiện trạng', example: 'Bổ sung thêm 8 ghế và 5 bàn' },
+  { id: 14, category: 'KINH DOANH', title: 'Số lượng Thành viên tích điểm/ tổng bill', placeholder: 'Ghi số lượng thành viên tích điểm trong ngày / tổng số bill bán trong ngày', example: '15/50 bill' },
+  { id: 15, category: 'KINH DOANH', title: 'Phát sinh bất thường trong ngày', placeholder: 'Ghi các bất thường trong ngày', example: 'Công an đến thu biển. KH say ngã ở toilet... Đông khách đột biến nên thiếu nhân sự bếp nên đồ ra lâu' },
+  { id: 16, category: 'KINH DOANH', title: 'Đề xuất', placeholder: 'Nêu ý kiến cải tiến, đề xuất, hiện trạng', example: 'Bổ sung thêm 8 ghế và 5 bàn' },
 ];
-
