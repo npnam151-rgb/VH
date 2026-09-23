@@ -3,6 +3,7 @@ import { toPng } from 'html-to-image';
 import { Download, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import { ReportForm } from './components/ReportForm';
 import { ReportPreview } from './components/ReportPreview';
+import { ImageExportModal } from './components/ImageExportModal';
 import { ReportData, CHECKLIST_ITEMS } from './types';
 
 // TODO: Thay thế đường dẫn này bằng URL Web App của Google Apps Script của bạn
@@ -22,6 +23,9 @@ export default function App() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [sheetStatus, setSheetStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [exportImageUrl, setExportImageUrl] = useState('');
+  const [exportFileName, setExportFileName] = useState('');
   const previewRef = useRef<HTMLDivElement>(null);
 
   const saveToGoogleSheets = async (data: ReportData) => {
@@ -35,7 +39,8 @@ export default function App() {
       "96 Hồng Tiến": "96HT",
       "98 Vũ Trọng Phụng": "98VTP",
       "01 Đặng Dung": "01 ĐD",
-      "3D Nguyễn Văn Huyên": "3D NVH"
+      "3D Nguyễn Văn Huyên": "3D NVH",
+      "12 Đào Tấn": "12ĐT"
     };
     const mappedLocation = locationMap[data.location] || data.location;
 
@@ -106,31 +111,29 @@ export default function App() {
         backgroundColor: '#ffffff',
       });
 
-      const link = document.createElement('a');
-      const fileName = `BaoCao_VH_${reportData.location || 'CoSo'}_${reportData.date}.png`;
-      link.download = fileName.replace(/\s+/g, '_');
-      link.href = dataUrl;
-      link.click();
+      const fileName = `BaoCao_VH_${reportData.location || 'CoSo'}_${reportData.date}.png`.replace(/\s+/g, '_');
+      setExportImageUrl(dataUrl);
+      setExportFileName(fileName);
+      setIsModalOpen(true);
       
       setExportSuccess(true);
       setTimeout(() => setExportSuccess(false), 5000);
     } catch (err) {
       console.error('Failed to export image', err);
-      // Nếu lỗi do timeout của sheet, vẫn cố gắng xuất ảnh
+      // Nếu lỗi do timeout của sheet, vẫn cố gắng xuất ảnh và mở modal
       try {
         const dataUrl = await toPng(previewRef.current, {
           quality: 1.0,
           pixelRatio: 2,
           backgroundColor: '#ffffff',
         });
-        const link = document.createElement('a');
-        const fileName = `BaoCao_VH_${reportData.location || 'CoSo'}_${reportData.date}.png`;
-        link.download = fileName.replace(/\s+/g, '_');
-        link.href = dataUrl;
-        link.click();
+        const fileName = `BaoCao_VH_${reportData.location || 'CoSo'}_${reportData.date}.png`.replace(/\s+/g, '_');
+        setExportImageUrl(dataUrl);
+        setExportFileName(fileName);
+        setIsModalOpen(true);
         setExportSuccess(true);
       } catch (innerErr) {
-        alert('Có lỗi xảy ra khi xuất ảnh. Vui lòng thử lại.');
+        alert('Có lỗi xảy ra khi tạo ảnh. Vui lòng thử lại.');
       }
     } finally {
       setIsExporting(false);
@@ -238,6 +241,14 @@ export default function App() {
           )}
         </button>
       </div>
+
+      {/* Modal hiển thị ảnh hoàn chỉnh cho phép copy hoặc tải */}
+      <ImageExportModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        imageUrl={exportImageUrl}
+        fileName={exportFileName}
+      />
     </div>
   );
 }
