@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { toPng } from 'html-to-image';
-import { Download, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Download, Camera, CheckCircle2, AlertCircle, FileSpreadsheet } from 'lucide-react';
 import { ReportForm } from './components/ReportForm';
 import { ReportPreview } from './components/ReportPreview';
 import { ImageExportModal } from './components/ImageExportModal';
 import { ReportData, CHECKLIST_ITEMS } from './types';
 
-// TODO: Thay thế đường dẫn này bằng URL Web App của Google Apps Script của bạn
-const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxeiVOMTrWkcqSCvXtXnjePlm8TbhZUHzvFEksr6yGG6q5CHouVpFgjDk-yEUf7Qv9-/exec";
+// URL Web App của Google Apps Script (lưu vào file BÁO CÁO TH - sheet BC Vận hành)
+const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxWKIm74psex5-61MTbeSZKTyA5_K8GBE2MzZ3iOcn7bu1ekM7NqvGXDOJLmz88iDGQ/exec";
 
 export default function App() {
   const [reportData, setReportData] = useState<ReportData>({
@@ -44,8 +44,9 @@ export default function App() {
     };
     const mappedLocation = locationMap[data.location] || data.location;
 
+    // Gửi đúng sheetName: "BC Vận hành" cho file BÁO CÁO TH
     const payload = {
-      sheetName: "BC vận hành",
+      sheetName: "BC Vận hành",
       location: String(mappedLocation || ""),
       date: String(data.date || ""),
       reporter: String(data.reporter || ""),
@@ -63,7 +64,6 @@ export default function App() {
     try {
       setSheetStatus('saving');
       
-      // Tạo một Promise có timeout để không bị kẹt mãi mãi
       const fetchPromise = fetch(GOOGLE_SHEET_WEBHOOK_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -77,10 +77,9 @@ export default function App() {
         setTimeout(() => reject(new Error('Timeout')), 8000)
       );
 
-      // Đợi fetch hoặc timeout (cái nào đến trước)
       await Promise.race([fetchPromise, timeoutPromise]);
       
-      console.log("Đã gửi dữ liệu lên Google Sheets");
+      console.log("Đã gửi dữ liệu lên Google Sheets:", payload);
       setSheetStatus('success');
       return true;
     } catch (error) {
@@ -98,10 +97,10 @@ export default function App() {
     setSheetStatus('idle');
 
     try {
-      // 1. Lưu dữ liệu lên Google Sheets
+      // 1. Lưu dữ liệu lên Google Sheets (Sheet: BC Vận hành trong file BÁO CÁO TH)
       await saveToGoogleSheets(reportData);
 
-      // Đợi một chút để UI cập nhật trạng thái
+      // Đợi ngắn để UI cập nhật trạng thái
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // 2. Xuất ảnh
@@ -120,7 +119,6 @@ export default function App() {
       setTimeout(() => setExportSuccess(false), 5000);
     } catch (err) {
       console.error('Failed to export image', err);
-      // Nếu lỗi do timeout của sheet, vẫn cố gắng xuất ảnh và mở modal
       try {
         const dataUrl = await toPng(previewRef.current, {
           quality: 1.0,
@@ -143,32 +141,41 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <div className="bg-indigo-600 p-2 rounded-lg text-white">
+            <div className="flex items-center gap-3">
+              <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-xs">
                 <Camera className="w-5 h-5" />
               </div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                CS Báo Cáo Vận Hành
-              </h1>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight leading-none">
+                  CS Báo Cáo Vận Hành
+                </h1>
+                <div className="flex items-center gap-1.5 mt-1 text-xs text-slate-500">
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Sheet đích: <strong className="text-slate-700">BC Vận hành</strong> (BÁO CÁO TH)</span>
+                </div>
+              </div>
             </div>
             
             <button
               onClick={handleExportImage}
               disabled={isExporting}
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isExporting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  {sheetStatus === 'saving' ? 'Đang lưu dữ liệu...' : 'Đang xuất ảnh...'}
+                  <span className="hidden sm:inline">
+                    {sheetStatus === 'saving' ? 'Đang lưu vào Sheet...' : 'Đang tạo ảnh...'}
+                  </span>
+                  <span className="sm:hidden">Đang xử lý...</span>
                 </>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  Tải ảnh báo cáo
+                  <span>Tải ảnh báo cáo</span>
                 </>
               )}
             </button>
@@ -179,27 +186,30 @@ export default function App() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-28 sm:pb-8">
         {exportSuccess && (
-          <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${sheetStatus === 'error' ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
-            {sheetStatus === 'error' ? <AlertCircle className="w-5 h-5 text-amber-600" /> : <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-            <p className="font-medium">
-              {sheetStatus === 'error' 
-                ? 'Đã tải ảnh thành công, nhưng LỖI lưu dữ liệu lên Google Sheets. Vui lòng kiểm tra mạng!' 
-                : 'Đã tải ảnh và lưu dữ liệu lên Google Sheets thành công!'}
-            </p>
+          <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 border shadow-xs animate-in fade-in slide-in-from-top-4 ${sheetStatus === 'error' ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'}`}>
+            {sheetStatus === 'error' ? (
+              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+            ) : (
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            )}
+            <div className="text-sm">
+              <p className="font-semibold">
+                {sheetStatus === 'error' 
+                  ? 'Đã tạo ảnh, nhưng không thể kết nối lưu dữ liệu lên Google Sheets!' 
+                  : 'Đã tạo ảnh & lưu dữ liệu vào sheet "BC Vận hành" thành công!'}
+              </p>
+              {sheetStatus === 'error' && (
+                <p className="text-xs text-amber-700 mt-0.5">
+                  Vui lòng kiểm tra lại kết nối mạng hoặc quyền truy cập của Web App Google Sheets.
+                </p>
+              )}
+            </div>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Left Column: Form */}
           <div className="space-y-6">
-            <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex gap-3 text-indigo-800">
-              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-semibold mb-1">Hướng dẫn sử dụng</p>
-                <p>Nhập thông tin vào biểu mẫu bên dưới. Bản xem trước sẽ tự động cập nhật bên phải. Nhấn "Tải ảnh báo cáo" để lưu thành ảnh gửi Zalo.</p>
-              </div>
-            </div>
-            
             <ReportForm data={reportData} onChange={setReportData} />
           </div>
 
@@ -207,12 +217,12 @@ export default function App() {
           <div className="lg:sticky lg:top-24 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-800">Bản xem trước</h2>
-              <span className="text-xs font-medium px-2 py-1 bg-slate-200 text-slate-600 rounded-md">
+              <span className="text-xs font-medium px-2.5 py-1 bg-slate-200 text-slate-700 rounded-lg">
                 Tự động cập nhật
               </span>
             </div>
             
-            <div className="bg-slate-200 p-2 sm:p-4 rounded-xl sm:rounded-2xl overflow-x-auto shadow-inner border border-slate-300">
+            <div className="bg-slate-200 p-2 sm:p-4 rounded-2xl overflow-x-auto shadow-inner border border-slate-300">
               <div className="w-[800px] min-w-[800px] mx-auto">
                 <ReportPreview data={reportData} ref={previewRef} />
               </div>
@@ -222,21 +232,21 @@ export default function App() {
       </main>
 
       {/* Mobile Bottom Action Bar */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 shadow-[0_-8px_15px_-3px_rgba(0,0,0,0.05)] z-50">
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-xs border-t border-slate-200 shadow-lg z-40">
         <button
           onClick={handleExportImage}
           disabled={isExporting}
-          className="w-full flex justify-center items-center gap-2 px-4 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-base font-semibold rounded-xl shadow-sm transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full flex justify-center items-center gap-2 px-4 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-xs transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isExporting ? (
             <>
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              {sheetStatus === 'saving' ? 'Đang lưu dữ liệu...' : 'Đang xuất ảnh...'}
+              <span>Đang lưu & tạo ảnh...</span>
             </>
           ) : (
             <>
               <Download className="w-5 h-5" />
-              Tải ảnh báo cáo
+              <span>Tải ảnh báo cáo</span>
             </>
           )}
         </button>
