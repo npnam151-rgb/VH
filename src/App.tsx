@@ -40,7 +40,10 @@ export default function App() {
       "98 Vũ Trọng Phụng": "98VTP",
       "01 Đặng Dung": "01 ĐD",
       "3D Nguyễn Văn Huyên": "3D NVH",
-      "12 Đào Tấn": "12ĐT"
+      "12 Đào Tấn": "12BĐT",
+      "12B Đào Tấn": "12BĐT",
+      "12ĐT": "12BĐT",
+      "12BĐT": "12BĐT"
     };
     const mappedLocation = locationMap[data.location] || data.location;
 

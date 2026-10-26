@@ -40,8 +40,12 @@ export const CHECKLIST_ITEMS: ChecklistItemDef[] = [
   { id: 12, category: 'KINH DOANH', title: 'Số bill chênh lệch tạm tính và thanh toán', placeholder: 'Ghi số lượng và nguyên nhân', example: '2 bill. Do Cs ko check kỹ đồ' },
   { id: 13, category: 'KINH DOANH', title: 'CTKM áp dụng trong ngày', placeholder: 'Ghi tên CTKM', example: 'Đặt bàn off 5%. Ngày hội Bia Ơi' },
   { id: 14, category: 'KINH DOANH', title: 'Hoạt động offline trong ngày', placeholder: 'Nêu các HĐ offline, event diễn ra tại địa điểm', example: 'Có band nhạc acoustic, Giao lưu fan club' },
-  { id: 15, category: 'KINH DOANH', title: 'Xuất bán khách tiệc', placeholder: 'Ghi đơn bán khách tiệc phát sinh trong ngày VD: 2 bom 50l', example: '2 bom 50l' },
+  { id: 15, category: 'KINH DOANH', title: 'Xuất bán đơn khách tiệc', placeholder: 'Ghi đơn bán khách tiệc phát sinh trong ngày VD: 2 bom 50l', example: '2 bom 50l' },
   { id: 16, category: 'KINH DOANH', title: 'Số lượng Thành viên tích điểm/ tổng bill', placeholder: 'Ghi số lượng thành viên tích điểm trong ngày / tổng số bill bán trong ngày', example: '15/50 bill' },
   { id: 17, category: 'KINH DOANH', title: 'Phát sinh bất thường trong ngày', placeholder: 'Ghi các bất thường trong ngày', example: 'Công an đến thu biển. KH say ngã ở toilet... Đông khách đột biến nên thiếu nhân sự bếp nên đồ ra lâu' },
   { id: 18, category: 'KINH DOANH', title: 'Đề xuất', placeholder: 'Nêu ý kiến cải tiến, đề xuất, hiện trạng', example: 'Bổ sung thêm 8 ghế và 5 bàn' },
+
+  // THEO DÕI HỖ TRỢ (Cột W - X)
+  { id: 19, category: 'THEO DÕI HỖ TRỢ', title: 'Thời gian CX làm việc đến lv và về', placeholder: 'Ghi tên nhân viên CX và thời gian đến làm việc, thời gian về', example: 'Ly: đến 17h00 - về 21h30' },
+  { id: 20, category: 'THEO DÕI HỖ TRỢ', title: 'Thời gian Tổng bar đến lv và về', placeholder: 'Ghi tên Tổng bar và thời gian đến làm việc, thời gian về', example: 'Lâm: đến 17h00 - về 21h30' },
 ];
